@@ -17,7 +17,7 @@ label{display:block;margin-top:10px;color:var(--muted);font-size:.9rem}.error{co
 <label><input type=checkbox id=remember> Lembrar neste aparelho</label>
 <button type=submit>Entrar</button><p class=error id=error></p></form>
 <nav id=links hidden><a class=link href="deck.html">Slides</a><a class=link href="estudos.html">Temas e questões</a>
-<a class=link href="temas.html">Lista de Temas</a>
+<a class=link href="temas.html">Lista de Temas</a><a class=link href="simulado.html">Avaliação do simulado</a>
 <button type=button id=pdf>Baixar slides (PDF)</button><p class=muted id=status></p>
 <section id=changelog></section></nav>
 <script>
@@ -40,7 +40,7 @@ async function fetchDecrypted(key, url) {
 const next = new URLSearchParams(location.search).get('next');
 async function show(key) {
   await fetchDecrypted(key, 'check.enc');
-  if (next && /^(deck|estudos|temas)\.html(#\d+)?$/.test(next)) { location.replace(next); return; }
+  if (next && /^(deck|estudos|temas|simulado)\.html(#\d+)?$/.test(next)) { location.replace(next); return; }
   unlock.hidden = true; links.hidden = false;
   fetchDecrypted(key, 'changelog.enc').then(data => { changelog.innerHTML = new TextDecoder().decode(data); })
     .catch(() => {});  // no changelog published
