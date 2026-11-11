@@ -17,7 +17,7 @@ label{display:block;margin-top:10px;color:var(--muted);font-size:.9rem}.error{co
 <form id=unlock><input type=password id=password placeholder="Senha" autocomplete="current-password" autofocus required>
 <label><input type=checkbox id=remember> Lembrar neste aparelho</label>
 <button type=submit>Entrar</button><p class=error id=error></p></form>
-<nav id=links hidden><h2>USP-SP R1 2027</h2><a class=link href="deck.html">Slides</a><a class=link href="estudos.html">Temas e questões</a><a class=link href="temas.html">Lista de Temas</a><a class=link href="simulado.html">Avaliação do simulado</a><button type=button id=pdf>Baixar slides (PDF)</button><h2>UNIFESP R1 2027</h2><a class=link href="unifesp.html">Temas e questões</a><a class=link href="unifesp-temas.html">Lista de Temas</a><p class=muted id=status></p>
+<nav id=links hidden><h2>USP-SP R1 2027</h2><a class=link href="deck.html">Slides</a><a class=link href="estudos.html">Temas e questões</a><a class=link href="temas.html">Lista de Temas</a><a class=link href="simulado.html">Avaliação do simulado</a><button type=button id=pdf data-src="deck-pdf.enc">Baixar slides (PDF)</button><h2>UNIFESP R1 2027</h2><a class=link href="unifesp-deck.html">Slides</a><a class=link href="unifesp.html">Temas e questões</a><a class=link href="unifesp-temas.html">Lista de Temas</a><button type=button data-src="unifesp-deck-pdf.enc">Baixar slides (PDF)</button><p class=muted id=status></p>
 <section id=changelog></section></nav>
 <script>
 const STORE = 'medprovas-key';
@@ -39,17 +39,18 @@ async function fetchDecrypted(key, url) {
 const next = new URLSearchParams(location.search).get('next');
 async function show(key) {
   await fetchDecrypted(key, 'check.enc');
-  if (next && /^(deck|estudos|temas|simulado|unifesp|unifesp-temas)\.html(#\d+)?$/.test(next)) { location.replace(next); return; }
+  if (next && /^(deck|estudos|temas|simulado|unifesp-deck|unifesp|unifesp-temas)\.html(#\d+)?$/.test(next)) { location.replace(next); return; }
   unlock.hidden = true; links.hidden = false;
   fetchDecrypted(key, 'changelog.enc').then(data => { changelog.innerHTML = new TextDecoder().decode(data); })
     .catch(() => {});  // no changelog published
-  pdf.onclick = async () => {
+  document.querySelectorAll('button[data-src]').forEach(b => b.onclick = async () => {
     status.textContent = 'Baixando…';
-    const data = await fetchDecrypted(key, 'deck-pdf.enc');
+    const data = await fetchDecrypted(key, b.dataset.src);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([data], {type: 'application/pdf'})); a.download = 'slides.pdf'; a.click();
+    a.href = URL.createObjectURL(new Blob([data], {type: 'application/pdf'}));
+    a.download = b.dataset.src.replace('-pdf.enc', '').replace('deck', 'slides') + '.pdf'; a.click();
     status.textContent = '';
-  };
+  });
 }
 keyFromStore().then(key => key && show(key).catch(() => {}));
 unlock.onsubmit = async e => {
